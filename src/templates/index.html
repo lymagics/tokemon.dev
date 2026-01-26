@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokemon - Token Counter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #fff;
+            --bg-secondary: #f7f7f8;
+            --bg-tertiary: #fff;
+            --border-color: #e5e5e5;
+            --border-input: #d9d9e3;
+            --text-primary: #202123;
+            --text-secondary: #353740;
+            --text-tertiary: #6e6e80;
+            --text-muted: #8e8ea0;
+            --accent: #10a37f;
+            --accent-hover: #1a7f64;
+            --error-bg: #fef2f2;
+            --error-border: #fecaca;
+            --error-text: #dc2626;
+            --disabled-bg: #f7f7f8;
+            --disabled-text: #8e8ea0;
+            --btn-disabled-bg: #d9d9e3;
+            --select-arrow: %236e6e80;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #212121;
+            --bg-secondary: #2f2f2f;
+            --bg-tertiary: #171717;
+            --border-color: #424242;
+            --border-input: #424242;
+            --text-primary: #ececec;
+            --text-secondary: #d1d1d1;
+            --text-tertiary: #9b9b9b;
+            --text-muted: #6b6b6b;
+            --accent: #10a37f;
+            --accent-hover: #1ed49d;
+            --error-bg: rgba(239, 68, 68, 0.1);
+            --error-border: #7f1d1d;
+            --error-text: #f87171;
+            --disabled-bg: #2f2f2f;
+            --disabled-text: #6b6b6b;
+            --btn-disabled-bg: #424242;
+            --select-arrow: %239b9b9b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .navbar {
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: background-color 0.15s, color 0.15s;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .theme-toggle .icon-sun,
+        [data-theme="dark"] .theme-toggle .icon-moon {
+            display: none;
+        }
+
+        [data-theme="dark"] .theme-toggle .icon-sun {
+            display: block;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 560px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: var(--text-tertiary);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .form-section {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+            border: 1px solid var(--border-input);
+            border-radius: 6px;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='var(--select-arrow)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: border-color 0.15s, box-shadow 0.15s, background-color 0.2s, color 0.2s;
+        }
+
+        select:hover {
+            border-color: var(--text-muted);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.15);
+        }
+
+        select:disabled {
+            background-color: var(--disabled-bg);
+            color: var(--disabled-text);
+            cursor: not-allowed;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            font-size: 14px;
+            font-family: inherit;
+            border: 1px solid var(--border-input);
+            border-radius: 6px;
+            background-color: var(--bg-primary);
+            color: var(--text-secondary);
+            resize: vertical;
+            min-height: 140px;
+            line-height: 1.5;
+            transition: border-color 0.15s, box-shadow 0.15s, background-color 0.2s, color 0.2s;
+        }
+
+        textarea:hover {
+            border-color: var(--text-muted);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.15);
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .textarea-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .char-counter {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .char-counter.warning {
+            color: var(--error-text);
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--accent);
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button[type="submit"]:disabled {
+            background-color: var(--btn-disabled-bg);
+            color: var(--disabled-text);
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            margin-top: 24px;
+            padding: 24px;
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            text-align: center;
+            transition: background-color 0.2s;
+        }
+
+        .result-section.hidden {
+            display: none;
+        }
+
+        .result-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 56px;
+            font-weight: 600;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .result-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .error-section {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background-color: var(--error-bg);
+            border: 1px solid var(--error-border);
+            border-radius: 8px;
+            color: var(--error-text);
+            font-size: 13px;
+        }
+
+        .error-section.hidden {
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.7s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 20px 24px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        footer p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .result-value {
+                font-size: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <button class="nav-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+        </button>
+        <a href="https://github.com/lymagics/tokemon" target="_blank" rel="noopener" class="nav-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+            GitHub
+        </a>
+    </nav>
+
+    <main>
+        <div class="container">
+            <header>
+                <h1>Token Counter</h1>
+                <p class="subtitle">Count tokens for OpenAI, Anthropic, Google AI, and xAI models</p>
+            </header>
+
+            <div class="form-section">
+                <form id="tokenForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="provider">Provider</label>
+                            <select id="provider" name="provider" required>
+                                <option value="">Select provider</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="model">Model</label>
+                            <select id="model" name="model" required disabled>
+                                <option value="">Select model</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="text">Text</label>
+                        <textarea
+                            id="text"
+                            name="text"
+                            placeholder="Enter text to count tokens..."
+                            maxlength="500"
+                            required
+                        ></textarea>
+                        <div class="textarea-footer">
+                            <span class="char-counter"><span id="charCount">0</span>/500</span>
+                            <button type="submit" id="submitBtn">Count tokens</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="resultSection" class="result-section hidden">
+                <div class="result-label">Tokens</div>
+                <div class="result-value" id="tokenCount">0</div>
+                <div class="result-meta" id="resultMeta"></div>
+            </div>
+
+            <div id="errorSection" class="error-section hidden"></div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Powered by <a href="https://github.com/lymagics/tokemon" target="_blank" rel="noopener">tokemon</a> Python library</p>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const providerSelect = document.getElementById('provider');
+        const modelSelect = document.getElementById('model');
+        const textArea = document.getElementById('text');
+        const charCount = document.getElementById('charCount');
+        const charCounter = document.querySelector('.char-counter');
+        const form = document.getElementById('tokenForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultSection = document.getElementById('resultSection');
+        const tokenCountEl = document.getElementById('tokenCount');
+        const resultMeta = document.getElementById('resultMeta');
+        const errorSection = document.getElementById('errorSection');
+
+        let providersData = {};
+
+        const providerNames = {
+            'openai': 'OpenAI',
+            'anthropic': 'Anthropic',
+            'google': 'Google AI',
+            'xai': 'xAI'
+        };
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        async function loadProviders() {
+            try {
+                const response = await fetch('/api/providers');
+                providersData = await response.json();
+
+                Object.keys(providersData).forEach(provider => {
+                    const option = document.createElement('option');
+                    option.value = provider;
+                    option.textContent = providerNames[provider] || provider;
+                    providerSelect.appendChild(option);
+                });
+            } catch (error) {
+                showError('Failed to load providers');
+            }
+        }
+
+        providerSelect.addEventListener('change', () => {
+            const provider = providerSelect.value;
+            modelSelect.innerHTML = '<option value="">Select model</option>';
+
+            if (provider && providersData[provider]) {
+                modelSelect.disabled = false;
+                providersData[provider].forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            } else {
+                modelSelect.disabled = true;
+            }
+
+            hideResult();
+        });
+
+        modelSelect.addEventListener('change', hideResult);
+
+        textArea.addEventListener('input', () => {
+            const length = textArea.value.length;
+            charCount.textContent = length;
+            charCounter.classList.toggle('warning', length >= 450);
+            hideResult();
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const provider = providerSelect.value;
+            const model = modelSelect.value;
+            const text = textArea.value.trim();
+
+            if (!provider || !model || !text) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            setLoading(true);
+            hideError();
+
+            try {
+                const response = await fetch('/api/count-tokens', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ provider, model, text }),
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                    hideResult();
+                } else {
+                    showResult(data);
+                }
+            } catch (error) {
+                showError('Failed to count tokens. Please try again.');
+                hideResult();
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(loading) {
+            submitBtn.disabled = loading;
+            submitBtn.innerHTML = loading
+                ? '<span class="loading"></span>Counting...'
+                : 'Count tokens';
+        }
+
+        function showResult(data) {
+            tokenCountEl.textContent = data.token_count ?? 'N/A';
+            resultMeta.textContent = `${providerNames[data.provider] || data.provider} / ${data.model}`;
+            resultSection.classList.remove('hidden');
+        }
+
+        function hideResult() {
+            resultSection.classList.add('hidden');
+        }
+
+        function showError(message) {
+            errorSection.textContent = message;
+            errorSection.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorSection.classList.add('hidden');
+        }
+
+        initTheme();
+        loadProviders();
+    </script>
+</body>
+</html>

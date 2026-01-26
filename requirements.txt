@@ -1,0 +1,4 @@
+tokemon==0.1.0
+fastapi[standard]==0.128.0
+environs==14.5.0
+granian==2.6.1
