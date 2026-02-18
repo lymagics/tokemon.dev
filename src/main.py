@@ -4,7 +4,7 @@ from environs import Env
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-from tokemon import tokemon, Provider, Mode, SUPPORTED_PROVIDERS
+from tokemon import tokemon, tokemon_models, ProviderName, Mode
 
 env = Env()
 env.read_env()
@@ -34,13 +34,26 @@ async def index() -> HTMLResponse:
 
 
 @app.get("/api/providers")
-async def get_providers() -> dict[str, list[str]]:
-    return SUPPORTED_PROVIDERS
+async def get_providers() -> list[str]:
+    return [member.value for member in ProviderName]
+
+
+@app.get("/api/providers/{provider}/models")
+async def get_provider_models(provider: str) -> list[str]:
+    is_openai = provider == ProviderName.OPENAI.value
+    provider_client = tokemon_models(
+        provider=provider,
+        mode=Mode.SYNC if is_openai else Mode.ASYNC,
+    )
+
+    if is_openai:
+        return provider_client.models()
+    return await provider_client.models()
 
 
 @app.post("/api/count-tokens", response_model=TokenCountResponse)
 async def count_tokens(request: TokenCountRequest) -> TokenCountResponse:
-    is_openai = request.provider == Provider.OPENAI.value
+    is_openai = request.provider == ProviderName.OPENAI.value
 
     try:
         tokenizer = tokemon(
