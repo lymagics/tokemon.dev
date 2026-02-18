@@ -468,7 +468,7 @@
         const resultMeta = document.getElementById('resultMeta');
         const errorSection = document.getElementById('errorSection');
 
-        let providersData = {};
+        const CACHE_TTL = 5 * 60 * 1000;
 
         const providerNames = {
             'openai': 'OpenAI',
@@ -501,9 +501,9 @@
         async function loadProviders() {
             try {
                 const response = await fetch('/api/providers');
-                providersData = await response.json();
+                const providers = await response.json();
 
-                Object.keys(providersData).forEach(provider => {
+                providers.forEach(provider => {
                     const option = document.createElement('option');
                     option.value = provider;
                     option.textContent = providerNames[provider] || provider;
@@ -514,23 +514,65 @@
             }
         }
 
-        providerSelect.addEventListener('change', () => {
-            const provider = providerSelect.value;
-            modelSelect.innerHTML = '<option value="">Select model</option>';
+        function getCachedModels(provider) {
+            const raw = localStorage.getItem(`tokemon_models_${provider}`);
+            if (!raw) return null;
+            const { data, ts } = JSON.parse(raw);
+            if (Date.now() - ts > CACHE_TTL) {
+                localStorage.removeItem(`tokemon_models_${provider}`);
+                return null;
+            }
+            return data;
+        }
 
-            if (provider && providersData[provider]) {
-                modelSelect.disabled = false;
-                providersData[provider].forEach(model => {
-                    const option = document.createElement('option');
-                    option.value = model;
-                    option.textContent = model;
-                    modelSelect.appendChild(option);
-                });
-            } else {
+        function setCachedModels(provider, models) {
+            localStorage.setItem(`tokemon_models_${provider}`, JSON.stringify({ data: models, ts: Date.now() }));
+        }
+
+        function populateModels(models) {
+            modelSelect.innerHTML = '<option value="">Select model</option>';
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+            modelSelect.disabled = false;
+        }
+
+        function setModelLoading(loading) {
+            modelSelect.innerHTML = loading
+                ? '<option value="">Loading models...</option>'
+                : '<option value="">Select model</option>';
+            modelSelect.disabled = loading;
+        }
+
+        providerSelect.addEventListener('change', async () => {
+            const provider = providerSelect.value;
+            hideResult();
+
+            if (!provider) {
+                modelSelect.innerHTML = '<option value="">Select model</option>';
                 modelSelect.disabled = true;
+                return;
             }
 
-            hideResult();
+            const cached = getCachedModels(provider);
+            if (cached) {
+                populateModels(cached);
+                return;
+            }
+
+            setModelLoading(true);
+            try {
+                const response = await fetch(`/api/providers/${provider}/models`);
+                const models = await response.json();
+                setCachedModels(provider, models);
+                populateModels(models);
+            } catch (error) {
+                showError('Failed to load models');
+                setModelLoading(false);
+            }
         });
 
         modelSelect.addEventListener('change', hideResult);
