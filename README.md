@@ -10,12 +10,14 @@ A web application for counting tokens across multiple LLM providers. Built as a 
 
 ## Supported Providers
 
-| Provider | Models | API Key Required |
-|----------|--------|------------------|
-| OpenAI | GPT-4o, GPT-4, GPT-3.5-turbo, o1, o3, etc. | No (offline) |
-| Anthropic | Claude Opus, Sonnet, Haiku | Yes |
-| Google AI | Gemini 2.5, 2.0 | Yes |
-| xAI | Grok 3, Grok 2 | Yes |
+| Provider | API Key Required |
+|----------|------------------|
+| OpenAI | No (offline) |
+| Anthropic | Yes |
+| Google AI | Yes |
+| xAI | Yes |
+
+Models are fetched dynamically from each provider's API at runtime.
 
 ## Quick Start
 
